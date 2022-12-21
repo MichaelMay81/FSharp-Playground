@@ -32,19 +32,30 @@ data.Rows
 // Seq-Doc: https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-seqmodule.html
 
 // == print total of Consumption_1 row (hint: Seq.sum)==
-// data.Rows
-// |> Seq.skip 1
-// ...
-// |> printfn "total of Consumption_1: %f"
+data.Rows
+|> Seq.skip 1
+|> Seq.map (fun row -> row.Consumption_1 |> parse)
+|> Seq.sum
+|> printfn "total of Consumption_1: %f"
 
 // == print number of days (hint: Seq.distinct)==
-// data.Rows
-// |> Seq.skip 1
-// ...
-// |> printfn "%i"
+data.Rows
+|> Seq.skip 1
+|> Seq.map (fun row -> row.Column1 |> DateTime.Parse)
+|> Seq.map (fun dt -> dt.Date)
+|> Seq.distinct
+|> Seq.length
+|> printfn "#days: %i"
 
 // == print average per day for the first 5 days (hint: Seq.groupBy) ==
-// data.Rows
-// |> Seq.skip 1
-// ...
-// |> printfn "%A"
+data.Rows
+|> Seq.skip 1
+|> Seq.map (fun row -> (row.Column1 |> DateTime.Parse).Date, row.Consumption_1 |> parse)
+|> Seq.groupBy (fun (dt, v) -> dt)
+|> Seq.take 5
+|> Seq.map (fun (dt, vs) ->
+    dt, vs
+    |> Seq.map snd
+    |> Seq.average)
+|> Seq.toList
+|> printfn "avg/day: %A"
